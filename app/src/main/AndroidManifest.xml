@@ -14,9 +14,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WebAppp"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="android.webkit.WebView.MetricsOptOut"
+            android:value="true" />
+
         <activity
             android:name=".MainActivity"
+            android:alwaysRetainTaskState="true"
+            android:configChanges="keyboardHidden|screenSize|smallestScreenSize|screenLayout|orientation"
             android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.WebAppp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
