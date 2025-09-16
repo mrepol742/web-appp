@@ -4,14 +4,21 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import android.webkit.WebView
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mrepol742.webappp.client.SecureChromeClient
 import com.mrepol742.webappp.client.SecureWebViewClient
 import com.mrepol742.webappp.utils.DownloadListener
+import kotlinx.coroutines.delay
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -58,4 +65,18 @@ fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: Mutab
             }
         }
     )
+
+    var canGoBack by remember { mutableStateOf(false) }
+
+    LaunchedEffect(webViewState.value) {
+        val webView = webViewState.value ?: return@LaunchedEffect
+        while (true) {
+            canGoBack = webView.canGoBack()
+            delay(100) // Poll every 100ms
+        }
+    }
+
+    BackHandler(enabled = canGoBack) {
+        webViewState.value?.goBack()
+    }
 }
