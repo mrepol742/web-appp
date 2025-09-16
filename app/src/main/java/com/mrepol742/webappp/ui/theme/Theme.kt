@@ -55,7 +55,7 @@ fun WebApppTheme(
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setStatusBarColor(
-            color = Color.White,
+            color = Color.Transparent,
             darkIcons = true
         )
     }

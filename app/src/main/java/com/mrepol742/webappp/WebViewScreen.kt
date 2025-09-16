@@ -33,6 +33,7 @@ fun WebViewScreen(allowedDomain: String, modifier: Modifier = Modifier) {
                 settings.loadsImagesAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+                settings.mediaPlaybackRequiresUserGesture = false
 
                 settings.builtInZoomControls = false
                 settings.setSupportZoom(false)
