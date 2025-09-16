@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mrepol742.webappp.client.SecureChromeClient
 import com.mrepol742.webappp.client.SecureWebViewClient
+import com.mrepol742.webappp.utils.DownloadListener
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -55,6 +56,7 @@ fun WebViewScreen(allowedDomain: String, modifier: Modifier = Modifier) {
 
                 webViewClient = SecureWebViewClient(context, allowedDomain)
                 webChromeClient = SecureChromeClient(context as Activity)
+                setDownloadListener(DownloadListener(context))
 
                 loadUrl("https://$allowedDomain")
 
