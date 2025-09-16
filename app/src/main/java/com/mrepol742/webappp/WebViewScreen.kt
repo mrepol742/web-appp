@@ -47,6 +47,11 @@ fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: Mutab
                 isLongClickable = false
                 isHapticFeedbackEnabled = false
 
+                isVerticalScrollBarEnabled = true
+                isHorizontalScrollBarEnabled = false
+
+                scrollBarStyle = WebView.SCROLLBARS_INSIDE_OVERLAY
+
                 val currentUA = settings.userAgentString
                 val safeAppName = appName.replace("\\s+".toRegex(), "")
                 settings.userAgentString = "$currentUA $safeAppName/$appVersion"
