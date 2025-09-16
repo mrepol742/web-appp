@@ -4,13 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import android.webkit.WebView
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mrepol742.webappp.client.SecureChromeClient
@@ -19,8 +15,7 @@ import com.mrepol742.webappp.utils.DownloadListener
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewScreen(allowedDomain: String, modifier: Modifier = Modifier) {
-    var webView by remember { mutableStateOf<WebView?>(null) }
+fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: MutableState<WebView?>, modifier: Modifier = Modifier) {
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
@@ -58,16 +53,9 @@ fun WebViewScreen(allowedDomain: String, modifier: Modifier = Modifier) {
                 webChromeClient = SecureChromeClient(context as Activity)
                 setDownloadListener(DownloadListener(context))
 
-                loadUrl("https://$allowedDomain")
-
-                // keep a reference
-                webView = this
+                loadUrl(initialUrl)
+                webViewState.value = this
             }
         }
     )
-
-    BackHandler(enabled = webView?.canGoBack() == true) {
-        Log.d("WebView", "test")
-        webView?.goBack()
-    }
 }
