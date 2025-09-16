@@ -16,6 +16,27 @@ class SecureWebViewClient(
     private val allowedDomain: String
 ) : WebViewClient() {
 
+    override fun onPageFinished(view: WebView?, url: String?) {
+        super.onPageFinished(view, url)
+
+        // hide footer for non dynamic pages
+        val js = """
+            javascript:(function() {
+                var footers = document.getElementsByTagName('footer');
+                for (var i=0; i<footers.length; i++) {
+                    footers[i].style.display='none';
+                }
+       
+                var footerById = document.getElementById('footer');
+                if (footerById) {
+                    footerById.style.display='none';
+                } 
+                })();
+            """.trimIndent()
+
+        view?.evaluateJavascript(js, null)
+    }
+
     @Deprecated("Deprecated in Java")
     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
         if (url == null) return false
