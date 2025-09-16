@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.browser.customtabs.CustomTabsIntent
@@ -24,6 +25,25 @@ class SecureWebViewClient(
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
         val uri = request?.url ?: return false
         return handleUri(uri)
+    }
+
+    override fun onReceivedHttpError(
+        view: WebView?,
+        request: WebResourceRequest?,
+        errorResponse: WebResourceResponse?
+    ) {
+        super.onReceivedHttpError(view, request, errorResponse)
+
+        if (request?.isForMainFrame == true) {
+            when (errorResponse?.statusCode) {
+                400 -> view?.loadUrl("file:///android_asset/http_error/error_400.html")
+                401, 403 -> view?.loadUrl("file:///android_asset/http_error/error_403.html")
+                404 -> view?.loadUrl("file:///android_asset/http_error/error_404.html")
+                500 -> view?.loadUrl("file:///android_asset/http_error/error_500.html")
+                502, 504 -> view?.loadUrl("file:///android_asset/http_error/error_504.html")
+                503 -> view?.loadUrl("file:///android_asset/http_error/error_503.html")
+            }
+        }
     }
 
     private fun handleUri(uri: Uri): Boolean {
