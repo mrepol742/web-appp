@@ -1,10 +1,16 @@
 package com.mrepol742.webappp
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.util.Log
 import android.webkit.WebView
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.mrepol742.webappp.client.SecureChromeClient
@@ -12,20 +18,30 @@ import com.mrepol742.webappp.client.SecureWebViewClient
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewScreen(allowedDomain: String, modifier: Modifier) {
+fun WebViewScreen(allowedDomain: String, modifier: Modifier = Modifier) {
+    var webView by remember { mutableStateOf<WebView?>(null) }
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
-            val appName = context.getString(R.string.app_name)
-            val appVersion = BuildConfig.VERSION_NAME
-
             WebView(context).apply {
+                val appName = context.getString(R.string.app_name)
+                val appVersion = BuildConfig.VERSION_NAME
+
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
                 settings.loadsImagesAutomatically = true
                 settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+
+                settings.builtInZoomControls = false
+                settings.setSupportZoom(false)
+                settings.useWideViewPort = true
+                settings.loadWithOverviewMode = true
+
+                setOnLongClickListener { true }
+                isLongClickable = false
+                isHapticFeedbackEnabled = false
 
                 val currentUA = settings.userAgentString
                 val safeAppName = appName.replace("\\s+".toRegex(), "")
@@ -37,10 +53,18 @@ fun WebViewScreen(allowedDomain: String, modifier: Modifier) {
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
 
                 webViewClient = SecureWebViewClient(context, allowedDomain)
-                webChromeClient = SecureChromeClient(context)
+                webChromeClient = SecureChromeClient(context as Activity)
 
                 loadUrl("https://$allowedDomain")
+
+                // keep a reference
+                webView = this
             }
         }
     )
+
+    BackHandler(enabled = webView?.canGoBack() == true) {
+        Log.d("WebView", "test")
+        webView?.goBack()
+    }
 }
