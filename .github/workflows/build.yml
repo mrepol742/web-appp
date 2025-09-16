@@ -14,17 +14,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 17
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-      - name: Upload APK
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Build App Bundle
+        run: ./gradlew bundleRelease --stacktrace
+
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload Release App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.aab
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          compression-level: 0
