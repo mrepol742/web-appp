@@ -19,3 +19,22 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep JavascriptInterface methods for WebView
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Strip logging
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int w(...);
+    public static int i(...);
+    public static int v(...);
+    public static int e(...);
+    public static int wtf(...);
+}
+
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-repackageclasses 'com.mrepol742.webappp'

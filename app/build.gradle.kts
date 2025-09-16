@@ -7,6 +7,15 @@ android {
     namespace = "com.mrepol742.webappp"
     compileSdk = 36
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(project.findProperty("STORE_FILE") as String)
+            storePassword = project.findProperty("STORE_PASSWORD") as String
+            keyAlias = project.findProperty("KEY_ALIAS") as String
+            keyPassword = project.findProperty("KEY_PASSWORD") as String
+        }
+    }
+
     defaultConfig {
         applicationId = "com.mrepol742.webappp"
         minSdk = 21
@@ -22,7 +31,9 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
