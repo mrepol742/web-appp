@@ -3,6 +3,7 @@ package com.mrepol742.webappp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
+import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,6 +70,13 @@ fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: Mutab
                 loadUrl(initialUrl)
                 webViewState.value = this
             }
+        },
+
+        update = { webView ->
+            webView.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
         }
     )
 
