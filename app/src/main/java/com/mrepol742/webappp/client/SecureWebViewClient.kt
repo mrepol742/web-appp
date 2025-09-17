@@ -82,7 +82,7 @@ class SecureWebViewClient(
             }
             "http", "https" -> {
                 val host = uri.host ?: return false
-                val allowedDomainRegex = Regex("(^|\\.)${Regex.escape(allowedDomain)}$")
+                val allowedDomainRegex = Regex("(^|\\.)${Regex.escape(allowedDomain)}$", RegexOption.IGNORE_CASE)
                 if (allowedDomainRegex.matches(host)) {
                     false // load in WebView
                 } else {

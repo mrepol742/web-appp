@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -18,6 +19,13 @@ import com.mrepol742.webappp.utils.DynamicShortcut
 class MainActivity : ComponentActivity() {
     private val allowedDomain = "www.melvinjonesrepol.com"
     private var currentUrl: String = "https://$allowedDomain"
+    private val shortcuts = listOf(
+        "/projects" to "My Projects",
+        "/gaming" to "The Games I Played",
+        "https://go.melvinjonesrepol.com" to "ShortLink",
+        "https://ai.melvinjonesrepol.com" to "Melvin AI",
+        "/contact-me" to "Contact Me",
+    )
     private val webViewState = mutableStateOf<WebView?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WebApppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize().systemBarsPadding()) { innerPadding ->
                     WebViewScreen(
                         allowedDomain = allowedDomain,
                         initialUrl = currentUrl,
@@ -37,7 +45,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        DynamicShortcut(this, allowedDomain).createDynamicShortcut()
+        DynamicShortcut(this, allowedDomain, shortcuts).createDynamicShortcut()
     }
 
     override fun onResume() {
