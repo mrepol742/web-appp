@@ -6,12 +6,14 @@ import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import com.mrepol742.webappp.client.SecureChromeClient
 import com.mrepol742.webappp.ui.theme.WebApppTheme
 import com.mrepol742.webappp.utils.DynamicShortcut
 
@@ -27,6 +29,12 @@ class MainActivity : ComponentActivity() {
         "/contact-me" to "Contact Me",
     )
     private val webViewState = mutableStateOf<WebView?>(null)
+    private val secureWebChromeClientState = mutableStateOf<SecureChromeClient?>(null)
+
+    private val fileChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            secureWebChromeClientState.value?.handleFileChosen(result.resultCode, result.data)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +47,8 @@ class MainActivity : ComponentActivity() {
                         allowedDomain = allowedDomain,
                         initialUrl = currentUrl,
                         webViewState = webViewState,
+                        secureWebChromeClientState = secureWebChromeClientState,
+                        fileChooserLauncher= fileChooserLauncher,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

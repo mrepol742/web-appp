@@ -12,27 +12,17 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
+import androidx.activity.result.ActivityResultLauncher
 
 class SecureChromeClient(
-    private val activity: Activity
+    private val activity: Activity,
+    private val fileChooserLauncher: ActivityResultLauncher<Intent>
 ) : WebChromeClient() {
 
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
-    private val fileChooserRequestCode = 1001
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
     private var fullScreenContainer: FrameLayout? = null
-
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == fileChooserRequestCode) {
-            val result: Array<Uri>? = if (resultCode == Activity.RESULT_OK && data != null) {
-                data.data?.let { arrayOf(it) }
-            } else null
-
-            filePathCallback?.onReceiveValue(result)
-            filePathCallback = null
-        }
-    }
 
     override fun onShowFileChooser(
         webView: WebView?,
@@ -42,14 +32,24 @@ class SecureChromeClient(
         this.filePathCallback?.onReceiveValue(null)
         this.filePathCallback = filePathCallback
 
-        val intent = fileChooserParams.createIntent()
         return try {
-            activity.startActivityForResult(intent, fileChooserRequestCode)
+            val intent = fileChooserParams.createIntent()
+            fileChooserLauncher.launch(intent) // ✅ modern way
             true
         } catch (e: Exception) {
             this.filePathCallback = null
             false
         }
+    }
+
+    fun handleFileChosen(resultCode: Int, data: Intent?) {
+        val result: Array<Uri>? =
+            if (resultCode == Activity.RESULT_OK && data?.data != null) {
+                arrayOf(data.data!!)
+            } else null
+
+        filePathCallback?.onReceiveValue(result)
+        filePathCallback = null
     }
 
     override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {

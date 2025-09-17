@@ -2,10 +2,12 @@ package com.mrepol742.webappp
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +25,14 @@ import kotlinx.coroutines.delay
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: MutableState<WebView?>, modifier: Modifier = Modifier) {
+fun WebViewScreen(
+    allowedDomain: String,
+    initialUrl: String,
+    webViewState: MutableState<WebView?>,
+    secureWebChromeClientState: MutableState<SecureChromeClient?>,
+    fileChooserLauncher: ActivityResultLauncher<Intent>,
+    modifier: Modifier = Modifier
+) {
 
     AndroidView(
         modifier = Modifier.fillMaxSize(),
@@ -64,7 +73,10 @@ fun WebViewScreen(allowedDomain: String, initialUrl: String, webViewState: Mutab
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
 
                 webViewClient = SecureWebViewClient(context, allowedDomain)
-                webChromeClient = SecureChromeClient(context as Activity)
+
+                val chromeClient = SecureChromeClient(context as Activity, fileChooserLauncher)
+                webChromeClient = chromeClient
+                secureWebChromeClientState.value = chromeClient
                 setDownloadListener(DownloadListener(context))
 
                 loadUrl(initialUrl)
