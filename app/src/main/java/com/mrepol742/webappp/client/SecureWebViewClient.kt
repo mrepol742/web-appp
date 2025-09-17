@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -48,6 +49,19 @@ class SecureWebViewClient(
         return handleUri(uri)
     }
 
+    override fun onReceivedError(
+        view: WebView?,
+        request: WebResourceRequest?,
+        error: WebResourceError?
+    ) {
+        super.onReceivedError(view, request, error)
+
+        if (request?.isForMainFrame == true) {
+            val failingUrl = request.url.toString()
+            view?.loadUrl("file:///android_asset/http_error/error_offline.html?retry=$failingUrl")
+        }
+    }
+
     override fun onReceivedHttpError(
         view: WebView?,
         request: WebResourceRequest?,
@@ -56,13 +70,14 @@ class SecureWebViewClient(
         super.onReceivedHttpError(view, request, errorResponse)
 
         if (request?.isForMainFrame == true) {
+            val failingUrl = request.url.toString()
             when (errorResponse?.statusCode) {
-                400 -> view?.loadUrl("file:///android_asset/http_error/error_400.html")
-                401, 403 -> view?.loadUrl("file:///android_asset/http_error/error_403.html")
-                404 -> view?.loadUrl("file:///android_asset/http_error/error_404.html")
-                500 -> view?.loadUrl("file:///android_asset/http_error/error_500.html")
-                502, 504 -> view?.loadUrl("file:///android_asset/http_error/error_504.html")
-                503 -> view?.loadUrl("file:///android_asset/http_error/error_503.html")
+                400 -> view?.loadUrl("file:///android_asset/http_error/error_400.html?retry=$failingUrl")
+                401, 403 -> view?.loadUrl("file:///android_asset/http_error/error_403.html?retry=$failingUrl")
+                404 -> view?.loadUrl("file:///android_asset/http_error/error_404.html?retry=$failingUrl")
+                500 -> view?.loadUrl("file:///android_asset/http_error/error_500.html?retry=$failingUrl")
+                502, 504 -> view?.loadUrl("file:///android_asset/http_error/error_504.html?retry=$failingUrl")
+                503 -> view?.loadUrl("file:///android_asset/http_error/error_503.html?retry=$failingUrl")
             }
         }
     }

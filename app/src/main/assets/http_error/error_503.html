@@ -11,7 +11,16 @@
     <div class="icon">⚠️</div>
     <h1>Service Unavailable</h1>
     <p>Oops! Something went wrong with your request.</p>
-    <a class="button" href="javascript:window.location.reload()">Try Again</a>
+    <a class="button" id="retry">Try Again</a>
 </div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const retryUrl = params.get("retry");
+    document.getElementById("retry").onclick = () => {
+        if (retryUrl) {
+            window.location.href = retryUrl;
+        }
+    };
+</script>
 </body>
 </html>
