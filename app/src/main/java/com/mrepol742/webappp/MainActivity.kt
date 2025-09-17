@@ -19,7 +19,7 @@ import com.mrepol742.webappp.utils.DynamicShortcut
 
 
 class MainActivity : ComponentActivity() {
-    private val allowedDomain = "www.melvinjonesrepol.com"
+    private val allowedDomain = "melvinjonesrepol.com"
     private var currentUrl: String = "https://$allowedDomain"
     private val shortcuts = listOf(
         "/projects" to "My Projects",
@@ -61,13 +61,12 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        val urlFromIntent = when (intent?.action) {
-            Intent.ACTION_VIEW -> intent.getStringExtra("url")
-            else -> null
-        }
+        val urlFromData = intent?.data?.toString()
+        val urlFromExtra = intent?.getStringExtra("url")
+        val url = urlFromData ?: urlFromExtra
 
-        if (!urlFromIntent.isNullOrEmpty()) {
-            currentUrl = urlFromIntent
+        if (!url.isNullOrEmpty()) {
+            currentUrl = url
             webViewState.value?.loadUrl(currentUrl)
         }
     }

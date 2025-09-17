@@ -97,8 +97,10 @@ class SecureWebViewClient(
             }
             "http", "https" -> {
                 val host = uri.host ?: return false
-                val allowedDomainRegex = Regex("(^|\\.)${Regex.escape(allowedDomain)}$", RegexOption.IGNORE_CASE)
-                if (allowedDomainRegex.matches(host)) {
+                val allowedDomainRegex = Regex("^(.*\\.)?${Regex.escape(allowedDomain)}$")
+                val isAllowed = allowedDomainRegex.matches(host)
+
+                if (isAllowed) {
                     false // load in WebView
                 } else {
                     openInCustomTab(uri)
