@@ -14,40 +14,26 @@ class DynamicShortcut(private val context: Context, private val allowedDomain: S
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
             val shortcutManager = context.getSystemService(ShortcutManager::class.java)
 
-            val projectShortcut = ShortcutInfo.Builder(context, "shortcut_projects")
-                .setShortLabel("Projects")
-                .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher_round))
-                .setIntent(
-                    Intent(context, MainActivity::class.java).apply {
-                        action = Intent.ACTION_VIEW
-                        putExtra("url", "https://$allowedDomain/projects")
-                    }
-                )
-                .build()
+            val shortcuts = listOf(
+                "projects" to "My Projects",
+                "gaming" to "The Games I Played",
+                "contact-me" to "Contact Me",
+            )
 
-            val gamingShortcut = ShortcutInfo.Builder(context, "shortcut_gaming")
-                .setShortLabel("Gaming")
-                .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher_round))
-                .setIntent(
-                    Intent(context, MainActivity::class.java).apply {
-                        action = Intent.ACTION_VIEW
-                        putExtra("url", "https://$allowedDomain/gaming")
-                    }
-                )
-                .build()
+            val dynamicShortcuts = shortcuts.map { (idSuffix, label) ->
+                ShortcutInfo.Builder(context, "shortcut_$idSuffix")
+                    .setShortLabel(label)
+                    .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher_round))
+                    .setIntent(
+                        Intent(context, MainActivity::class.java).apply {
+                            action = Intent.ACTION_VIEW
+                            putExtra("url", "https://$allowedDomain/$idSuffix")
+                        }
+                    )
+                    .build()
+            }
 
-            val contactMe = ShortcutInfo.Builder(context, "shortcut_contact_me")
-                .setShortLabel("Contact")
-                .setIcon(Icon.createWithResource(context, R.mipmap.ic_launcher_round))
-                .setIntent(
-                    Intent(context, MainActivity::class.java).apply {
-                        action = Intent.ACTION_VIEW
-                        putExtra("url", "https://$allowedDomain/contact-me")
-                    }
-                )
-                .build()
-
-            shortcutManager?.dynamicShortcuts = listOf(projectShortcut, gamingShortcut, contactMe)
+            shortcutManager?.dynamicShortcuts = dynamicShortcuts
         }
     }
 }
