@@ -21,7 +21,7 @@ import com.mrepol742.webappp.ui.theme.WebApppTheme
 import com.mrepol742.webappp.utils.DynamicShortcut
 
 class MainActivity : ComponentActivity() {
-    // private val allowedDomain = "melvinjonesrepol.com"
+    private val allowedDomain = "melvinjonesrepol.com"
 
     // Testing for GEO Location
     // private val allowedDomain = "browserleaks.com/geo"
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
     // private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/gum"
 
     // Testing for Microphone
-    private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/audio"
+    // private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/audio"
 
     private var currentUrl: String = "https://$allowedDomain"
     private val shortcuts = listOf(

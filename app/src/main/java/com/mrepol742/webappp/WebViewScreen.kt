@@ -88,6 +88,7 @@ fun WebViewScreen(
                 Log.d("WebView", "User Agent: $newUA")
 
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+                setDownloadListener(DownloadListener(context))
 
                 webViewClient = SecureWebViewClient(context, allowedDomain)
 
@@ -99,7 +100,6 @@ fun WebViewScreen(
                 )
                 webChromeClient = chromeClient
                 secureWebChromeClientState.value = chromeClient
-                setDownloadListener(DownloadListener(context))
 
                 loadUrl(initialUrl)
                 webViewState.value = this
