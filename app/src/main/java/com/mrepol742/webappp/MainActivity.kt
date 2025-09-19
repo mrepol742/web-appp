@@ -10,12 +10,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.mrepol742.webappp.client.SecureChromeClient
 import com.mrepol742.webappp.ui.theme.WebApppTheme
 import com.mrepol742.webappp.utils.DynamicShortcut
@@ -32,6 +38,7 @@ class MainActivity : ComponentActivity() {
             }
     private val webViewState = mutableStateOf<WebView?>(null)
     private val secureWebChromeClientState = mutableStateOf<SecureChromeClient?>(null)
+    private val isLoading = mutableStateOf<Boolean?>(null)
 
     private val fileChooserLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -40,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-             if (!isGranted) {
+            if (!isGranted) {
                 Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
             }
         }
@@ -81,7 +88,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WebApppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize().systemBarsPadding()) { innerPadding ->
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()) {
                     WebViewScreen(
                         allowedDomain = allowedDomain,
                         initialUrl = currentUrl,
@@ -89,9 +98,26 @@ class MainActivity : ComponentActivity() {
                         secureWebChromeClientState = secureWebChromeClientState,
                         fileChooserLauncher = fileChooserLauncher,
                         locationPermissionLauncher = locationPermissionLauncher,
-                        permissionsLauncher =permissionsLauncher,
-                        modifier = Modifier.padding(innerPadding)
+                        permissionsLauncher = permissionsLauncher,
+                        isLoading = isLoading,
+                        modifier = Modifier.fillMaxSize()
                     )
+
+                    // Loading overlay
+                    if (isLoading.value == true) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(45.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 4.dp
+                            )
+                        }
+                    }
                 }
             }
         }

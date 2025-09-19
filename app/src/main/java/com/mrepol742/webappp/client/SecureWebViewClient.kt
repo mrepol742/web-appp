@@ -2,6 +2,7 @@ package com.mrepol742.webappp.client
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.webkit.WebResourceError
@@ -10,16 +11,24 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.runtime.MutableState
 import androidx.core.net.toUri
 import com.mrepol742.webappp.BuildConfig
 
 class SecureWebViewClient(
     private val context: Context,
-    private val allowedDomain: String
+    private val allowedDomain: String,
+    private var isLoading: MutableState<Boolean?>,
 ) : WebViewClient() {
+
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+        isLoading.value = true
+    }
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
+        isLoading.value = false
 
         if (BuildConfig.PREFERS_HIDDEN_FOOTER) {
             view?.evaluateJavascript(

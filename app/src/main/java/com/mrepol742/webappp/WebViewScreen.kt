@@ -35,6 +35,7 @@ fun WebViewScreen(
     fileChooserLauncher: ActivityResultLauncher<Intent>,
     locationPermissionLauncher: ActivityResultLauncher<String>,
     permissionsLauncher: ActivityResultLauncher<Array<String>>,
+    isLoading: MutableState<Boolean?>,
     modifier: Modifier = Modifier
 ) {
 
@@ -90,7 +91,7 @@ fun WebViewScreen(
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
                 setDownloadListener(DownloadListener(context))
 
-                webViewClient = SecureWebViewClient(context, allowedDomain)
+                webViewClient = SecureWebViewClient(context, allowedDomain, isLoading)
 
                 val chromeClient = SecureChromeClient(
                     context as Activity,
