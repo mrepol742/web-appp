@@ -11,6 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import com.mrepol742.webappp.BuildConfig
 
 class SecureWebViewClient(
     private val context: Context,
@@ -20,8 +21,9 @@ class SecureWebViewClient(
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
 
-        // hide footer for non dynamic pages
-        val js = """
+        if (BuildConfig.PREFERS_HIDDEN_FOOTER) {
+            view?.evaluateJavascript(
+                """
             javascript:(function() {
                 var footers = document.getElementsByTagName('footer');
                 for (var i=0; i<footers.length; i++) {
@@ -33,9 +35,9 @@ class SecureWebViewClient(
                     footerById.style.display='none';
                 } 
                 })();
-            """.trimIndent()
-
-        view?.evaluateJavascript(js, null)
+            """.trimIndent(), null
+            )
+        }
     }
 
     @Deprecated("Deprecated in Java")

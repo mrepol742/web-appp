@@ -3,6 +3,14 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+val shortcuts = mapOf(
+    "/projects" to "My Projects",
+    "/gaming" to "The Games I Played",
+    "https://go.melvinjonesrepol.com" to "ShortLink",
+    "https://ai.melvinjonesrepol.com" to "Melvin AI",
+    "/contact-me" to "Contact Me",
+)
+
 android {
     namespace = "com.mrepol742.webappp"
     compileSdk = 36
@@ -27,6 +35,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // must not contain http/https
+        buildConfigField("String", "APPLICATION_URL", "\"melvinjonesrepol.com\"")
+
+        val shortcutsSerialized = shortcuts
+            .entries
+            .joinToString(";") { "${it.key}|${it.value}" }
+        buildConfigField("String", "SHORTCUTS", "\"$shortcutsSerialized\"")
+
+        // hide footer
+        buildConfigField("Boolean", "PREFERS_HIDDEN_FOOTER", "true")
     }
 
     buildTypes {
@@ -40,20 +59,25 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

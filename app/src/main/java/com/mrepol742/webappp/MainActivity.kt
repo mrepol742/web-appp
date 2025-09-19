@@ -21,25 +21,15 @@ import com.mrepol742.webappp.ui.theme.WebApppTheme
 import com.mrepol742.webappp.utils.DynamicShortcut
 
 class MainActivity : ComponentActivity() {
-    private val allowedDomain = "melvinjonesrepol.com"
-
-    // Testing for GEO Location
-    // private val allowedDomain = "browserleaks.com/geo"
-
-    // Testing for Camera
-    // private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/gum"
-
-    // Testing for Microphone
-    // private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/audio"
-
+    private val allowedDomain = BuildConfig.APPLICATION_URL
     private var currentUrl: String = "https://$allowedDomain"
-    private val shortcuts = listOf(
-        "/projects" to "My Projects",
-        "/gaming" to "The Games I Played",
-        "https://go.melvinjonesrepol.com" to "ShortLink",
-        "https://ai.melvinjonesrepol.com" to "Melvin AI",
-        "/contact-me" to "Contact Me",
-    )
+    private val shortcuts: List<Pair<String, String>> =
+        BuildConfig.SHORTCUTS
+            .split(";")
+            .map {
+                val (path, label) = it.split("|", limit = 2)
+                path to label
+            }
     private val webViewState = mutableStateOf<WebView?>(null)
     private val secureWebChromeClientState = mutableStateOf<SecureChromeClient?>(null)
 
