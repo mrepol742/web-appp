@@ -3,8 +3,10 @@ package com.mrepol742.webappp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.ActivityResultLauncher
@@ -41,17 +43,29 @@ fun WebViewScreen(
                 val appName = context.getString(R.string.app_name)
                 val appVersion = BuildConfig.VERSION_NAME
 
+                /*
+                 * Adjust this base on your web app preferences
+                 * but if you use HTTPS its highly unlikely
+                 * your going to need this so ill turn them off
+                 */
+                settings.allowFileAccess = false
+                settings.allowContentAccess = false
+
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
                 settings.loadsImagesAutomatically = true
-                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                settings.cacheMode = WebSettings.LOAD_DEFAULT
                 settings.mediaPlaybackRequiresUserGesture = false
 
                 settings.builtInZoomControls = false
                 settings.setSupportZoom(false)
                 settings.useWideViewPort = true
                 settings.loadWithOverviewMode = true
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    settings.saveFormData = false
+                }
 
                 setOnLongClickListener { true }
                 isLongClickable = false
