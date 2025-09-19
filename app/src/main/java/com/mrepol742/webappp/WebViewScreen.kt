@@ -33,6 +33,7 @@ fun WebViewScreen(
     webViewState: MutableState<WebView?>,
     secureWebChromeClientState: MutableState<SecureChromeClient?>,
     fileChooserLauncher: ActivityResultLauncher<Intent>,
+    locationPermissionLauncher: ActivityResultLauncher<String>,
     modifier: Modifier = Modifier
 ) {
 
@@ -57,6 +58,7 @@ fun WebViewScreen(
                 settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                 settings.cacheMode = WebSettings.LOAD_DEFAULT
                 settings.mediaPlaybackRequiresUserGesture = false
+                settings.setGeolocationEnabled(true)
 
                 settings.builtInZoomControls = false
                 settings.setSupportZoom(false)
@@ -88,7 +90,11 @@ fun WebViewScreen(
 
                 webViewClient = SecureWebViewClient(context, allowedDomain)
 
-                val chromeClient = SecureChromeClient(context as Activity, fileChooserLauncher)
+                val chromeClient = SecureChromeClient(
+                    context as Activity,
+                    fileChooserLauncher,
+                    locationPermissionLauncher
+                )
                 webChromeClient = chromeClient
                 secureWebChromeClientState.value = chromeClient
                 setDownloadListener(DownloadListener(context))

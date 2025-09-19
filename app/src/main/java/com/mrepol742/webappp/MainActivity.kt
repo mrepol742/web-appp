@@ -3,6 +3,7 @@ package com.mrepol742.webappp
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +20,9 @@ import com.mrepol742.webappp.utils.DynamicShortcut
 
 
 class MainActivity : ComponentActivity() {
-    private val allowedDomain = "melvinjonesrepol.com"
+    // private val allowedDomain = "melvinjonesrepol.com"
+    // Testing for GEO Location
+    private val allowedDomain = "browserleaks.com/geo"
     private var currentUrl: String = "https://$allowedDomain"
     private val shortcuts = listOf(
         "/projects" to "My Projects",
@@ -36,6 +39,13 @@ class MainActivity : ComponentActivity() {
             secureWebChromeClientState.value?.handleFileChosen(result.resultCode, result.data)
         }
 
+    private val locationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+             if (!isGranted) {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -49,6 +59,7 @@ class MainActivity : ComponentActivity() {
                         webViewState = webViewState,
                         secureWebChromeClientState = secureWebChromeClientState,
                         fileChooserLauncher= fileChooserLauncher,
+                        locationPermissionLauncher= locationPermissionLauncher,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

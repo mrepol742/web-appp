@@ -1,11 +1,14 @@
 package com.mrepol742.webappp.client
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.GeolocationPermissions
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
 import android.webkit.ValueCallback
@@ -13,10 +16,12 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
 
 class SecureChromeClient(
     private val activity: Activity,
-    private val fileChooserLauncher: ActivityResultLauncher<Intent>
+    private val fileChooserLauncher: ActivityResultLauncher<Intent>,
+    private val locationPermissionLauncher: ActivityResultLauncher<String>,
 ) : WebChromeClient() {
 
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -91,6 +96,22 @@ class SecureChromeClient(
                 )
     }
 
+    override fun onGeolocationPermissionsShowPrompt(
+        origin: String,
+        callback: GeolocationPermissions.Callback
+    ) {
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            callback.invoke(origin, true, false)
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            callback.invoke(origin, false, false)
+        }
+    }
+
     override fun onHideCustomView() {
         fullScreenContainer?.removeAllViews()
         activity.window.decorView.findViewById<ViewGroup>(android.R.id.content)
@@ -105,7 +126,7 @@ class SecureChromeClient(
     }
 
 
-override fun onJsAlert(
+    override fun onJsAlert(
         view: WebView?,
         url: String?,
         message: String?,
