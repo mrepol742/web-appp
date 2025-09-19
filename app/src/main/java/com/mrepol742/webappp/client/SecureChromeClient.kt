@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.webkit.GeolocationPermissions
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
+import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -22,12 +23,14 @@ class SecureChromeClient(
     private val activity: Activity,
     private val fileChooserLauncher: ActivityResultLauncher<Intent>,
     private val locationPermissionLauncher: ActivityResultLauncher<String>,
+    private val permissionsLauncher: ActivityResultLauncher<Array<String>>
 ) : WebChromeClient() {
 
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
     private var fullScreenContainer: FrameLayout? = null
+    private var pendingRequest: PermissionRequest? = null
 
     override fun onShowFileChooser(
         webView: WebView?,
@@ -96,6 +99,19 @@ class SecureChromeClient(
                 )
     }
 
+    override fun onHideCustomView() {
+        fullScreenContainer?.removeAllViews()
+        activity.window.decorView.findViewById<ViewGroup>(android.R.id.content)
+            .removeView(fullScreenContainer)
+
+        fullScreenContainer = null
+        customView = null
+        customViewCallback?.onCustomViewHidden()
+
+        // Restore system UI
+        activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+    }
+
     override fun onGeolocationPermissionsShowPrompt(
         origin: String,
         callback: GeolocationPermissions.Callback
@@ -112,19 +128,28 @@ class SecureChromeClient(
         }
     }
 
-    override fun onHideCustomView() {
-        fullScreenContainer?.removeAllViews()
-        activity.window.decorView.findViewById<ViewGroup>(android.R.id.content)
-            .removeView(fullScreenContainer)
+    override fun onPermissionRequest(request: PermissionRequest) {
+        activity.runOnUiThread {
+            val neededPermissions = mutableListOf<String>()
+            if (request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+                neededPermissions.add(Manifest.permission.CAMERA)
+            }
+            if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+                neededPermissions.add(Manifest.permission.RECORD_AUDIO)
+            }
 
-        fullScreenContainer = null
-        customView = null
-        customViewCallback?.onCustomViewHidden()
+            val notGranted = neededPermissions.filter {
+                ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
+            }
 
-        // Restore system UI
-        activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            if (notGranted.isEmpty()) {
+                request.grant(request.resources)
+            } else {
+                pendingRequest = request
+                permissionsLauncher.launch(notGranted.toTypedArray())
+            }
+        }
     }
-
 
     override fun onJsAlert(
         view: WebView?,

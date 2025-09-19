@@ -34,6 +34,7 @@ fun WebViewScreen(
     secureWebChromeClientState: MutableState<SecureChromeClient?>,
     fileChooserLauncher: ActivityResultLauncher<Intent>,
     locationPermissionLauncher: ActivityResultLauncher<String>,
+    permissionsLauncher: ActivityResultLauncher<Array<String>>,
     modifier: Modifier = Modifier
 ) {
 
@@ -93,7 +94,8 @@ fun WebViewScreen(
                 val chromeClient = SecureChromeClient(
                     context as Activity,
                     fileChooserLauncher,
-                    locationPermissionLauncher
+                    locationPermissionLauncher,
+                    permissionsLauncher
                 )
                 webChromeClient = chromeClient
                 secureWebChromeClientState.value = chromeClient

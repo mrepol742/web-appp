@@ -1,7 +1,9 @@
 package com.mrepol742.webappp
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.webkit.PermissionRequest
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -18,11 +20,18 @@ import com.mrepol742.webappp.client.SecureChromeClient
 import com.mrepol742.webappp.ui.theme.WebApppTheme
 import com.mrepol742.webappp.utils.DynamicShortcut
 
-
 class MainActivity : ComponentActivity() {
     // private val allowedDomain = "melvinjonesrepol.com"
+
     // Testing for GEO Location
-    private val allowedDomain = "browserleaks.com/geo"
+    // private val allowedDomain = "browserleaks.com/geo"
+
+    // Testing for Camera
+    // private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/gum"
+
+    // Testing for Microphone
+    private val allowedDomain = "webrtc.github.io/samples/src/content/getusermedia/audio"
+
     private var currentUrl: String = "https://$allowedDomain"
     private val shortcuts = listOf(
         "/projects" to "My Projects",
@@ -46,6 +55,36 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private var pendingPermissionRequest: PermissionRequest? = null
+    private val permissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            pendingPermissionRequest?.let { request ->
+                val grantedResources = mutableListOf<String>()
+                if (results[Manifest.permission.CAMERA] == true &&
+                    request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+                ) {
+                    grantedResources.add(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+                }
+                if (results[Manifest.permission.RECORD_AUDIO] == true &&
+                    request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
+                ) {
+                    grantedResources.add(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
+                }
+
+                if (grantedResources.isNotEmpty()) {
+                    request.grant(grantedResources.toTypedArray())
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Camera and/or microphone permission denied",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    request.deny()
+                }
+                pendingPermissionRequest = null
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -58,8 +97,9 @@ class MainActivity : ComponentActivity() {
                         initialUrl = currentUrl,
                         webViewState = webViewState,
                         secureWebChromeClientState = secureWebChromeClientState,
-                        fileChooserLauncher= fileChooserLauncher,
-                        locationPermissionLauncher= locationPermissionLauncher,
+                        fileChooserLauncher = fileChooserLauncher,
+                        locationPermissionLauncher = locationPermissionLauncher,
+                        permissionsLauncher =permissionsLauncher,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
