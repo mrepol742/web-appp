@@ -127,7 +127,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        handleIntent(intent)
+    }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
         val urlFromData = intent?.data?.toString()
         val urlFromExtra = intent?.getStringExtra("url")
         val url = urlFromData ?: urlFromExtra
@@ -135,11 +144,11 @@ class MainActivity : ComponentActivity() {
         if (!url.isNullOrEmpty()) {
             currentUrl = url
             webViewState.value?.loadUrl(currentUrl)
+
+            intent?.replaceExtras(Bundle())
+            intent?.setAction(null)
+            intent?.setData(null)
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-    }
 }
