@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
@@ -23,7 +24,8 @@ class SecureChromeClient(
     private val activity: Activity,
     private val fileChooserLauncher: ActivityResultLauncher<Intent>,
     private val locationPermissionLauncher: ActivityResultLauncher<String>,
-    private val permissionsLauncher: ActivityResultLauncher<Array<String>>
+    private val permissionsLauncher: ActivityResultLauncher<Array<String>>,
+    private val cookieManager: CookieManager
 ) : WebChromeClient() {
 
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -31,6 +33,10 @@ class SecureChromeClient(
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
     private var fullScreenContainer: FrameLayout? = null
     private var pendingRequest: PermissionRequest? = null
+
+    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+        cookieManager.flush();
+    }
 
     override fun onShowFileChooser(
         webView: WebView?,

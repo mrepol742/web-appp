@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
@@ -81,6 +82,10 @@ fun WebViewScreen(
                 scrollBarStyle = WebView.SCROLLBARS_INSIDE_OVERLAY
                 overScrollMode = WebView.OVER_SCROLL_NEVER
 
+                val cookieManager = CookieManager.getInstance()
+                cookieManager.setAcceptCookie(true);
+                cookieManager.setAcceptThirdPartyCookies( this, true)
+
                 val currentUA = settings.userAgentString
                 val safeAppName = appName.replace("\\s+".toRegex(), "")
                 settings.userAgentString = "$currentUA $safeAppName/$appVersion"
@@ -97,7 +102,8 @@ fun WebViewScreen(
                     context as Activity,
                     fileChooserLauncher,
                     locationPermissionLauncher,
-                    permissionsLauncher
+                    permissionsLauncher,
+                    cookieManager
                 )
                 webChromeClient = chromeClient
                 secureWebChromeClientState.value = chromeClient
