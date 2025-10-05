@@ -17,6 +17,31 @@
 
 Build your web app for Android faster with this base template.
 
+## Your Web-to-APK Base Template
+
+Web-Appp is a **ready-to-use Android template** designed to help developers quickly convert a website
+into a fully functional APK, while adding mobile-specific features and customizations.
+
+- Free & MIT Licensed
+- WebView Metrics Opt-Out Enabled
+- Custom Error Pages
+- External Links Open in Chrome Custom Tabs
+- Supports Special URL Schemes
+- Automatic Footer Hiding
+- Built-in Analytics (Optional)
+- Google GCM / Push Notifications (Planned)
+
+  #### and more
+
+- **Easy theming** with Material 3 design support for a modern Android look.
+- **Fullscreen video support** inside WebView.
+- **File download handling** for PDFs, images, or other assets directly from your web content.
+- **Intent handling & dynamic shortcuts** for deep links, so users can launch specific pages directly.
+- **Back navigation management** using Compose BackHandler for seamless navigation.
+- **Modern Android setup** using the latest Gradle tooling.
+- **Kotlin-based** for flexibility, maintainability, and seamless integration with Jetpack Compose.
+- Modular and easy to extend — all features can be enabled or disabled as needed. (Planned)
+
 ## Prerequisites
 
 - Android Studio **Narwhal 3 or newer**
@@ -35,31 +60,29 @@ Build your web app for Android faster with this base template.
 
 ---
 
-## Your Web-to-APK Base Template
+## Required GitHub Secrets
 
-Web-Appp is a **ready-to-use Android template** designed to help developers quickly convert a website
-into a fully functional APK, while adding mobile-specific features and customizations.
+Before running the workflow, set up the following **repository secrets**:
 
-- Free & MIT Licensed
-- WebView Metrics Opt-Out Enabled
-- Custom Error Pages
-- External Links Open in Chrome Custom Tabs
-- Supports Special URL Schemes
-- Automatic Footer Hiding
-- Built-in Analytics (Optional)
-- Google GCM / Push Notifications (Planned)
-
-  #### and more
-- **Easy theming** with Material 3 design support for a modern Android look.
-- **Fullscreen video support** inside WebView.
-- **File download handling** for PDFs, images, or other assets directly from your web content.
-- **Intent handling & dynamic shortcuts** for deep links, so users can launch specific pages directly.
-- **Back navigation management** using Compose BackHandler for seamless navigation.
-- **Modern Android setup** using the latest Gradle tooling.
-- **Kotlin-based** for flexibility, maintainability, and seamless integration with Jetpack Compose.
-- Modular and easy to extend — all features can be enabled or disabled as needed. (Planned)
+| Secret Name | Description |
+|--------------|-------------|
+| `SIGNING_KEYSTORE` | Base64-encoded contents of your `keystore.jks` file. |
+| `STORE_PASSWORD` | The password for your keystore. |
+| `KEY_ALIAS` | The alias name used for the signing key. |
+| `KEY_PASSWORD` | The password for your key alias. |
+| `RELEASED_REPO_TOKEN` | GitHub Personal Access Token (PAT) with write permissions to the released repository (used for pushing the signed APK). |
 
 ---
+
+## Base64 Keystore
+
+If you already have a `keystore.jks` file, you must convert it into a Base64 string before storing it as a GitHub secret.
+
+Run the following command:
+
+```bash
+base64 keystore.jks > keystore.txt
+```
 
 ## License
 
