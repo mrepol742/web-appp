@@ -55,3 +55,18 @@ jobs:
           path: app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           compression-level: 0
+
+      - name: Push APK to released repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git clone https://x-access-token:${{ secrets.RELEASED_REPO_TOKEN }}@github.com/mrepol742/released.git
+          cd released
+          mkdir -p android
+
+          cp ../app/build/outputs/apk/release/app-release.apk android/melvinjones-app.apk
+
+          git add android/melvinjones-app.apk
+          git commit -m "chore: update melvinjones-app.apk ($(date +'%Y-%m-%d %H:%M:%S'))" || echo "chore: initial commit"
+          git push origin master
