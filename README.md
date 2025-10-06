@@ -60,16 +60,16 @@ into a fully functional APK, while adding mobile-specific features and customiza
 
 ---
 
-## Required GitHub Secrets
+## GitHub Secrets
 
-Before running the workflow, set up the following **repository secrets**:
+Before running the workflow, set up the following **repository secrets** else itll fallback to build `debug`:
 
-| Secret Name | Description |
-|--------------|-------------|
-| `SIGNING_KEYSTORE` | Base64-encoded contents of your `keystore.jks` file. |
-| `STORE_PASSWORD` | The password for your keystore. |
-| `KEY_ALIAS` | The alias name used for the signing key. |
-| `KEY_PASSWORD` | The password for your key alias. |
+| Secret Name           | Description                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `SIGNING_KEYSTORE`    | Base64-encoded contents of your `keystore.jks` file.                                                                    |
+| `STORE_PASSWORD`      | The password for your keystore.                                                                                         |
+| `KEY_ALIAS`           | The alias name used for the signing key.                                                                                |
+| `KEY_PASSWORD`        | The password for your key alias.                                                                                        |
 | `RELEASED_REPO_TOKEN` | GitHub Personal Access Token (PAT) with write permissions to the released repository (used for pushing the signed APK). |
 
 ---

@@ -25,9 +25,11 @@ jobs:
         uses: gradle/gradle-build-action@v3
 
       - name: Decode Keystore
+        if: secrets.SIGNING_KEYSTORE != ''
         run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 --decode > app/release.keystore
 
       - name: Setup Gradle Signing Config
+        if: secrets.SIGNING_KEYSTORE != ''
         run: |
           echo -e "\nSTORE_FILE=release.keystore" >> gradle.properties
           echo "STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> gradle.properties
@@ -35,20 +37,27 @@ jobs:
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> gradle.properties
 
       - name: Build Release APK
+        if: secrets.SIGNING_KEYSTORE != ''
         run: ./gradlew assembleRelease --stacktrace
 
+      - name: Build Debug APK
+        if: secrets.SIGNING_KEYSTORE == ''
+        run: ./gradlew assembleDebug --stacktrace
+
       - name: Build App Bundle
+        if: secrets.SIGNING_KEYSTORE != ''
         run: ./gradlew bundleRelease --stacktrace
 
-      - name: Upload Release APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
-          path: app/build/outputs/apk/release/app-release.apk
+          name: ${{ secrets.SIGNING_KEYSTORE != '' && 'app-release.apk' || 'app-debug.apk' }}
+          path: ${{ secrets.SIGNING_KEYSTORE != '' && 'app/build/outputs/apk/release/app-release.apk' || 'app/build/outputs/apk/debug/app-debug.apk' }}
           if-no-files-found: error
           compression-level: 0
 
       - name: Upload Release App Bundle
+        if: secrets.SIGNING_KEYSTORE != ''
         uses: actions/upload-artifact@v4
         with:
           name: app-release.aab
@@ -57,6 +66,7 @@ jobs:
           compression-level: 0
 
       - name: Push APK to released repo
+        if: secrets.RELEASED_REPO_TOKEN != ''
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
