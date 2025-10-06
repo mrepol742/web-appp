@@ -1,7 +1,14 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
+
+val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+val dateVersionCode = dateFormat.format(Date()).toInt()
 
 val shortcuts = mapOf(
     "/projects" to "My Projects",
@@ -25,11 +32,12 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mrepol742.webappp"
+        applicationId = "com.melvinjonesrepol"
         minSdk = 21
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+
+        versionCode = dateVersionCode
+        versionName = "1.1 ($dateVersionCode)"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
