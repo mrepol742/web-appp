@@ -11,6 +11,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE }}
+      STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      RELEASED_REPO_TOKEN: ${{ secrets.RELEASED_REPO_TOKEN }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,59 +31,81 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode Keystore
-        if: secrets.SIGNING_KEYSTORE != ''
-        run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 --decode > app/release.keystore
-
-      - name: Setup Gradle Signing Config
-        if: secrets.SIGNING_KEYSTORE != ''
+      - name: Decode Keystore (if provided)
         run: |
-          echo -e "\nSTORE_FILE=release.keystore" >> gradle.properties
-          echo "STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> gradle.properties
-          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> gradle.properties
-          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> gradle.properties
+          if [ -n "${SIGNING_KEYSTORE}" ]; then
+            echo "Decoding provided keystore..."
+            echo "${SIGNING_KEYSTORE}" | base64 --decode > app/release.keystore
+          else
+            echo "No keystore provided — skipping signing setup."
+          fi
 
-      - name: Build Release APK
-        if: secrets.SIGNING_KEYSTORE != ''
-        run: ./gradlew assembleRelease --stacktrace
+      - name: Setup Gradle Signing Config (if keystore provided)
+        run: |
+          if [ -n "${SIGNING_KEYSTORE}" ]; then
+            echo "Adding signing config to gradle.properties..."
+            echo -e "\nSTORE_FILE=release.keystore" >> gradle.properties
+            echo "STORE_PASSWORD=${STORE_PASSWORD}" >> gradle.properties
+            echo "KEY_ALIAS=${KEY_ALIAS}" >> gradle.properties
+            echo "KEY_PASSWORD=${KEY_PASSWORD}" >> gradle.properties
+          else
+            echo "Skipping signing config (no keystore)."
+          fi
 
-      - name: Build Debug APK
-        if: secrets.SIGNING_KEYSTORE == ''
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build APK (Release or Debug)
+        run: |
+          if [ -n "${SIGNING_KEYSTORE}" ]; then
+            echo "Building signed release APK..."
+            ./gradlew assembleRelease --stacktrace
+          else
+            echo "Building debug APK..."
+            ./gradlew assembleDebug --stacktrace
+          fi
 
-      - name: Build App Bundle
-        if: secrets.SIGNING_KEYSTORE != ''
-        run: ./gradlew bundleRelease --stacktrace
+      - name: Build App Bundle (only if keystore provided)
+        run: |
+          if [ -n "${SIGNING_KEYSTORE}" ]; then
+            echo "Building release App Bundle (.aab)..."
+            ./gradlew bundleRelease --stacktrace
+          else
+            echo "Skipping bundle build (no signing info)."
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ secrets.SIGNING_KEYSTORE != '' && 'app-release.apk' || 'app-debug.apk' }}
-          path: ${{ secrets.SIGNING_KEYSTORE != '' && 'app/build/outputs/apk/release/app-release.apk' || 'app/build/outputs/apk/debug/app-debug.apk' }}
-          if-no-files-found: error
+          name: app-apk
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
           compression-level: 0
 
       - name: Upload Release App Bundle
-        if: secrets.SIGNING_KEYSTORE != ''
+        if: env.SIGNING_KEYSTORE != ''
         uses: actions/upload-artifact@v4
         with:
           name: app-release.aab
           path: app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: error
+          if-no-files-found: ignore
           compression-level: 0
 
-      - name: Push APK to released repo
-        if: secrets.RELEASED_REPO_TOKEN != ''
+      - name: Push APK to released repo (if token provided)
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "${RELEASED_REPO_TOKEN}" ]; then
+            echo "Pushing release APK to external repo..."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git clone https://x-access-token:${{ secrets.RELEASED_REPO_TOKEN }}@github.com/mrepol742/released.git
-          cd released
-          mkdir -p android
+            git clone https://x-access-token:${RELEASED_REPO_TOKEN}@github.com/mrepol742/released.git
+            cd released
+            mkdir -p android
 
-          cp ../app/build/outputs/apk/release/app-release.apk android/melvinjones-app.apk
+            cp ../app/build/outputs/apk/release/app-release.apk android/melvinjones-app.apk || echo "No release APK found — skipping copy."
 
-          git add android/melvinjones-app.apk
-          git commit -m "chore: update melvinjones-app.apk ($(date +'%Y-%m-%d %H:%M:%S'))" || echo "chore: initial commit"
-          git push origin master
+            git add android/melvinjones-app.apk || true
+            git commit -m "chore: update melvinjones-app.apk ($(date +'%Y-%m-%d %H:%M:%S'))" || echo "Nothing to commit."
+            git push origin master || echo "No changes to push."
+          else
+            echo "No RELEASED_REPO_TOKEN found — skipping repo upload."
+          fi
