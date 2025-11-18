@@ -101,8 +101,10 @@ jobs:
             cd released
             mkdir -p android
 
+            cp ../app/build/outputs/apk/release/output-metadata.json android/melvinjones-app-metadata.json || echo "No metadata found — skipping copy."
             cp ../app/build/outputs/apk/release/app-release.apk android/melvinjones-app.apk || echo "No release APK found — skipping copy."
 
+            git add android/melvinjones-app-metadata.json || true
             git add android/melvinjones-app.apk || true
             git commit -m "chore: update melvinjones-app.apk ($(date +'%Y-%m-%d %H:%M:%S'))" || echo "Nothing to commit."
             git push origin master || echo "No changes to push."
